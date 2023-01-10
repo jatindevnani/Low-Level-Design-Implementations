@@ -3,4 +3,7 @@ For creating a chess game I have decided to break down the creation in parts -
 2) Movement of pieces (Regular Moves)
 3) Movement of pieces (Special Moves)
 4) Special conditions such as Stalemate and Checkmate.
-5) I
+
+
+*Basic Design*
+
