@@ -9,8 +9,8 @@ import lombok.Data;
 @Builder
 public class Teleporter {
 
-    private final Square startingSquare;
-    private final Square endingSquare;
+    private final int startingSquare;
+    private final int endingSquare;
     private final TeleporterType type;
 
 }

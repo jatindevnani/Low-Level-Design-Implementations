@@ -1,9 +1,9 @@
 package com.lowLevelDesign.SnakeNLadder;
 
 public enum GameDifficulty {
-    EASY("SNAKE-2,LADDER-2"),
-    NORMAL("SNAKE-6,LADDER-6"),
-    HARD("SNAKE-10,LADDER-10");
+    EASY("SNAKE-2 LADDER-2"),
+    NORMAL("SNAKE-6 LADDER-6"),
+    HARD("SNAKE-10 LADDER-10");
 
     private String teleportersBreakdown;
 

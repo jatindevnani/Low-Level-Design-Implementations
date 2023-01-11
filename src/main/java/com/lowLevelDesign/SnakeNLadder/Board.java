@@ -19,13 +19,23 @@ public class Board {
         board.setSquares(new Square[size]);
         AtomicInteger squareNumber = new AtomicInteger(1);
 
-        Map<TeleporterType, Integer> teleportersMap = Arrays.stream(difficulty.getTeleportersBreakdown()
-                        .split(""))
-                .map(e -> e.split("-"))
-                .collect(Collectors.toMap(a -> TeleporterType.valueOf(a[0]), b -> Integer.parseInt(b[0])));
+        //Getting the number of teleporters as per the difficulty
+        Map<TeleporterType, Integer> teleportersMap = new HashMap<>();
 
-        List<String> boardMap = new ArrayList<>(size);
 
+        String[] teleporters = difficulty.getTeleportersBreakdown().split(" ");
+        for(String teleporterMapping : teleporters) {
+            String[] map = teleporterMapping.split("-");
+            teleportersMap.put(TeleporterType.findByValue(map[0]),Integer.parseInt(map[1]));
+        }
+
+        List<String> boardMap = new ArrayList<>();
+
+        for(int i = 0; i < 100; i++) {
+            boardMap.add("NO_TELEPORTER");
+        }
+
+        //Creating a random board to represent location of teleporters
         boardMap = boardMap.stream().map(e -> {
             for(Map.Entry<TeleporterType, Integer> entry : teleportersMap.entrySet()) {
                 if(entry.getValue() == 0) {
@@ -34,22 +44,33 @@ public class Board {
                 teleportersMap.put(entry.getKey(), entry.getValue() - 1);
                 return entry.getKey().name();
             }
-            return null;
+            return "NO_TELEPORTER";
         }).toList();
 
-        Collections.shuffle(boardMap);
+        List<String> finalBoard = new ArrayList<>(boardMap);
 
-        List<String> finalBoardMap = boardMap;
-        Arrays.stream(board.getSquares()).forEach(e -> {
-                e = Square
-                        .builder()
-                        .teleporter(TeleporterFactory.getTeleporter(TeleporterType.findByValue(finalBoardMap.get(squareNumber.get() - 1)), squareNumber.get() - 1))
-                        .number(squareNumber.getAndIncrement())
-                        .build();
-            }
-        );
+        //Shuffling the board
+        Collections.shuffle(finalBoard, new Random(4));
+
+        for(int i = 0; i < board.getSquares().length; i++) {
+            board.getSquares()[i] = Square
+                    .builder()
+                    .teleporter(TeleporterFactory.getTeleporter(TeleporterType.findByValue(finalBoard
+                            .get(i)), board, i ))
+                    .number(squareNumber.getAndIncrement())
+                    .build();
+        }
+
         board.setStart(board.getSquares()[0]);
         board.setEnd(board.getSquares()[size-1]);
         return board;
+    }
+
+    public Square findSquareBySquareNumber(int squareNumber) {
+        if(squareNumber > this.size || squareNumber < 1) {
+            return null;
+        }
+
+        return this.squares[squareNumber - 1];
     }
 }
