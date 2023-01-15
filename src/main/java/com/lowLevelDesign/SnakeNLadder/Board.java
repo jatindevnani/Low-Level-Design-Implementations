@@ -35,7 +35,7 @@ public class Board {
             boardMap.add("NO_TELEPORTER");
         }
 
-        //Creating a random board to represent location of teleporters
+        //Creating a random board dummy to represent location of teleporters
         boardMap = boardMap.stream().map(e -> {
             for(Map.Entry<TeleporterType, Integer> entry : teleportersMap.entrySet()) {
                 if(entry.getValue() == 0) {
@@ -49,7 +49,7 @@ public class Board {
 
         List<String> finalBoard = new ArrayList<>(boardMap);
 
-        //Shuffling the board
+        //Shuffling the dummy board
         Collections.shuffle(finalBoard, new Random(4));
 
         for(int i = 0; i < board.getSquares().length; i++) {
@@ -72,5 +72,14 @@ public class Board {
         }
 
         return this.squares[squareNumber - 1];
+    }
+
+    public Square findSquareByPiece(Piece piece) {
+        for(Square square : squares) {
+            if(square.getPieces().contains(piece)) {
+                return square;
+            }
+        }
+        return null;            //Ideally it should never return null
     }
 }

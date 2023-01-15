@@ -8,6 +8,6 @@ import lombok.Data;
 public class Move {
     private Square prevSquare;
     private Square nextSquare;
-    private Piece piece;
     private Teleporter teleporter;
+    private Face dieRoll;
 }

@@ -1,19 +1,19 @@
 package com.lowLevelDesign.SnakeNLadder;
 
+import com.lowLevelDesign.SnakeNLadder.Exceptions.InvalidMoveException;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Builder
 @Data
 public class Game {
     private Board board;
-    private Dice die;
     private Player[] players;
-    private List<Move> moveList;
+    private List<Turn> turns;
     private GameStatus status;
+    private Player currentPlayer;
 
     public static void main(String[] args) {
         Player player1 = new Player(new Piece("1"));
@@ -24,10 +24,10 @@ public class Game {
     public static Game startGame(int boardSize, GameDifficulty difficulty, Player... players) {
         Game newGame = Game.builder()
                 .board(Board.createNewBoard(boardSize, difficulty))
-                .die(new Dice())
                 .players(players)
-                .moveList(new ArrayList<>())
+                .turns(new ArrayList<>())
                 .status(GameStatus.INITIATED)
+                .currentPlayer(players[0])
                 .build();
 
         List<Piece> pieces = Arrays.stream(players)
@@ -36,17 +36,41 @@ public class Game {
 
         newGame.getBoard().getStart().setPieces(pieces);
 
-        for(Square sq : newGame.getBoard().getSquares()) {
-            if(sq.getTeleporter() != null) {
-                int startingSquare = sq.getTeleporter().getStartingSquare();
-                int endingSquare = sq.getTeleporter().getEndingSquare();
+        return newGame;
+    }
 
-                if(startingSquare == 1 || endingSquare == 100) {
-                    System.out.println("WRRRRRRRONG");
-                }
-            }
+    public List<Move> makeMove(List<Move> moves, Piece piece, Square currentSquare) {
+        Face face = Die.rollDice();
+        Square nextSquare = null;
+
+        try {
+            nextSquare = board.findSquareBySquareNumber(currentSquare.getNumber() + face.getFaceValue());
+        } catch (InvalidMoveException e) {
+            System.out.println("Invalid move");
+            return moves;
         }
 
-        return newGame;
+        while (nextSquare.getTeleporter() != null) {
+            Teleporter teleporter = currentSquare.getTeleporter();
+            nextSquare = board.findSquareBySquareNumber(teleporter.getEndingSquare());
+        }
+
+        currentSquare.removePiecesFromSquare(Arrays.asList(piece));
+        nextSquare.placePiecesOnSquare(Arrays.asList(piece));
+
+        Move move = new Move.MoveBuilder()
+                .dieRoll(face)
+                .prevSquare(currentSquare)
+                .nextSquare(nextSquare)
+                .teleporter(nextSquare.getTeleporter())
+                .build();
+
+        moves.add(move);
+
+        if (nextSquare.getTeleporter() != null) {
+            return makeMove(moves, piece, nextSquare);
+        }
+
+        return moves;
     }
 }
